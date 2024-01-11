@@ -1,19 +1,30 @@
 package aplicatieGestiuneStocMagazin;
 
+import java.sql.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.Statement;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
-
-import javax.swing.border.Border;
-import javax.swing.text.html.HTMLDocument.Iterator;
 
 public class Main {
 
-	private static ArrayList<Produs> produse;
-
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ClassNotFoundException {
+		
+		Connection con = null;
+	
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			con=DriverManager.getConnection("jdbc:mysql://localhost:3306/p3", "root", "a6p3sprm");
+		} catch(SQLException e) {
+			e.printStackTrace();
+		}
 		
 		ArrayList<Produs> produse = new ArrayList<>();
 		
@@ -50,6 +61,8 @@ public class Main {
 		
 		ImageIcon image = new ImageIcon("star-on.png");
 		frame.setIconImage(image.getImage());
+		
+		frame.setVisible(true);
 		
 		afisareButon.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -125,7 +138,7 @@ public class Main {
 
                 Produs newProduct = new Produs(denumire, categorie, cantitate, pret);
                 produse.add(newProduct);
-
+                
                 JOptionPane.showMessageDialog(null, "Produsul a fost adaugat:\n" + newProduct.toString());
             }
         });
@@ -153,14 +166,16 @@ public class Main {
                 JOptionPane.showMessageDialog(null, "Produsul nu a fost gasit.");
             }
         });
-		
+	
 		stergereButon.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String denumire = JOptionPane.showInputDialog("Introduceti denumirea produsului pentru stergere:");
 
                 for (Produs el : produse) {
                     if (el.getDenumire().equalsIgnoreCase(denumire)) {
-                       // el.remove(denumire);
+                       produse.remove(el);
+                       JOptionPane.showMessageDialog(null, "Produsul a fost sters cu succes.");
+                       return;
                     }
                 }
 
@@ -168,59 +183,5 @@ public class Main {
             }
         });
 		
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            ProductFileHandler.saveProducts(Main.produse);
-        }));
-		
-		frame.setVisible(true);
-		
 	}
 }
-
-/*JPanel redPanel = new JPanel();
-redPanel.setBackground(Color.red);
-redPanel.setBounds(0, 0, 100, 100);
-
-JPanel greenPanel = new JPanel();
-greenPanel.setBackground(Color.green);
-greenPanel.setBounds(100, 0, 100, 100);
-greenPanel.setLayout(new BorderLayout());
-
-Border border = BorderFactory.createLineBorder(Color.green,5);
-
-JLabel newLabel = new JLabel();
-newLabel.setText("HI!");
-//newLabel.setBounds(100, 100, 100, 100);
-
-JLabel label = new JLabel();
-label.setText("SALUT!");
-label.setHorizontalTextPosition(JLabel.CENTER);
-label.setVerticalTextPosition(JLabel.TOP);
-label.setVerticalAlignment(JLabel.CENTER);
-label.setHorizontalAlignment(JLabel.CENTER);
-label.setForeground(new Color(0,1,1));
-label.setFont(new Font("TNR", Font.PLAIN, 20));
-label.setBorder(border);
-
-JFrame frame = new JFrame();
-frame.setTitle("Aplicatie de gestiune stoc magazin");
-frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-frame.setResizable(false);
-frame.setSize(420,420);
-frame.setVisible(true);
-frame.setLayout(null);
-frame.add(label);
-frame.add(newLabel);
-frame.add(redPanel);
-frame.add(greenPanel);
-redPanel.add(newLabel);
-//frame.setLayout(new GridLayout(5,1,0,0));
-
-new MyFrame();
-
-
-ImageIcon image = new ImageIcon("star-on.png");
-frame.setIconImage(image.getImage());
-frame.getContentPane().setBackground(new Color(50,94,168));
-
-*/
